@@ -5,3 +5,4 @@ def find_word(string):
     return word[0]
 
 print(find_word("Vivianne is cool"))
+
