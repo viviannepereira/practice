@@ -41,20 +41,112 @@ class PPM:
 
         return lines
     
+    def convert_to_file(self):
 
-def main():
+        with open(self.output_file, 'w') as file:
+
+            file.write(self.magic_number)
+
+            file.write("\n")
+
+            file.write(f"{self.rows} {self.columns}")
+
+            file.write("\n")
+
+            file.write(self.max_colour_val)
+
+            file.write("\n")
+
+            for line in self.list:
+                for pixel in line:
+                    file.write(f"{pixel[0]} {pixel[1]} {pixel[2]}")
+                file.write("\n")
+
+
+    def negate_red(self):
+
+        temp_list = self.list[3:].copy()
+        
+        for line in temp_list:
+
+            for pixel in line:
+
+                pixel[0] = str(int(self.max_colour_val) - int(pixel[0]))
+
+        return temp_list
+        
+
+    
+def get_ppm_filename(message):
+
+    file = None
+
     while True:
 
-        input_file = input("Please name the file you would like to manipulate: ")
+        file = input(message)
 
-        match_object = re.search(r"^[\d\w-_]+\.ppm$", input_file)
+        match_object = re.search(r"^\w+\.ppm$", file)
 
         if match_object is not None:
+        
             break
+
         print("Incorrect file format, please try again.")
 
-    my_ppm = PPM("mini_squares.ppm", "new_squares.ppm")
-    
+    return file
 
+def get_manipulation():
+    print("\n")
+    print("Photo Manipulation options:")
+    print("\n")
+    print("~ Negate Red ~")
+    print("Flips red values to create a totally tubular effect!\nRespond 1 if you would like to apply this manipulation.")
+    print("\n")
+    print("~ Flip Horizontal ~")
+    print("Flips your image horizontal, perfect for that totally WACKY mirror selfie you just took. Haha!\nRespond 2 if you would like to apply this manipulation.")
+    print("\n")
+    print("~ GreyScale ~")
+    print("Feeling down? Reflect that through your photos with this filter!\nRespond 3 if you would like to apply this manipulation.")
+    print("\n")
+    print(" ~ Flatten Red ~")
+    print("Do you just hate the colour red and wished it didn't exist and the being who created humans just destroyed our rectinas so we wouldn't be able to see it?\nWell avoid permanent eye damage with this funky filter!\nRespond 4 if you would like to apply this manipulation.")
+    print("\n")
+
+    mani_chosen = None
+
+    while True:
+
+        mani_chosen = input("Please respond with a number that corresponds to a listed manipulation: ")
+
+        match_object = re.search(r"^[1-4]$", mani_chosen)
+
+        if match_object is not None:
+
+            break
+    
+    return int(mani_chosen)
+
+
+
+def main():
+
+    input_file = get_ppm_filename("Name the file you want to manipulate: ")
+
+    output_file = get_ppm_filename("What would you like to name the manipulated file?: ")
+
+    manipulation = get_manipulation()
+
+    PPM_object = PPM(input_file, output_file)
+
+    
+    if manipulation == 1:
+        
+        PPM_object.negate_red()
+    
+    PPM_object.convert_to_file()
+
+
+    
+    
 main()
 
