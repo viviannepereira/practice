@@ -4,11 +4,19 @@ class PPM:
     def __init__(self, input_file, output_file):
 
         self.list = self.convert_to_list(input_file)
+
+        self.manipulated_list = None
+
         self.output_file = output_file
+
         self.magic_number = self.list[0][0][0]
+
         self.columns = self.list[1][0][1]
+
         self.rows = self.list[1][0][0]
+
         self.max_colour_val = self.list[2][0][0]
+
 
     def convert_to_list(self, input_file):
 
@@ -57,9 +65,14 @@ class PPM:
 
             file.write("\n")
 
-            for line in self.list:
+            for line in self.manipulated_list:
+
                 for pixel in line:
+
                     file.write(f"{pixel[0]} {pixel[1]} {pixel[2]}")
+
+                    file.write("  ")
+
                 file.write("\n")
 
 
@@ -73,10 +86,56 @@ class PPM:
 
                 pixel[0] = str(int(self.max_colour_val) - int(pixel[0]))
 
-        return temp_list
-        
+        self.manipulated_list = temp_list
 
+        self.convert_to_file()
     
+    def flip_horizontal(self):
+
+        temp_list = self.list[3:].copy()
+
+        for line in temp_list:
+
+            line.reverse()
+
+        self.manipulated_list = temp_list
+
+        self.convert_to_file()
+
+    def grey_scale(self):
+
+        temp_list = self.list[3:].copy()
+
+        for line in temp_list:
+
+            for pixel in line:
+                
+                total = int( ( int(pixel[0]) + int(pixel[1]) + int(pixel[2]) ) // 3 )
+                
+                pixel[0] = total
+
+                pixel[1] = total
+
+                pixel[2] = total
+
+        self.manipulated_list = temp_list
+
+        self.convert_to_file()
+
+    def flatten_red(self):
+
+        temp_list = self.list[3:].copy()
+
+        for line in temp_list:
+
+            for pixel in line:
+
+                pixel[0] = 0
+
+        self.manipulated_list = temp_list
+
+        self.convert_to_file()
+        
 def get_ppm_filename(message):
 
     file = None
@@ -138,12 +197,23 @@ def main():
 
     PPM_object = PPM(input_file, output_file)
 
-    
     if manipulation == 1:
-        
+
         PPM_object.negate_red()
-    
-    PPM_object.convert_to_file()
+
+    elif manipulation == 2:
+
+        PPM_object.flip_horizontal()
+
+    elif manipulation == 3:
+
+        PPM_object.grey_scale()
+
+    elif manipulation == 4:
+
+        PPM_object.flatten_red()
+
+    print(f"The manipulation has been completed.\nA file by the name of {PPM_object.output_file} was added to your directory.")
 
 
     
