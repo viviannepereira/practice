@@ -1,29 +1,15 @@
 import re
 
+
 class PPM:
 
     def __init__(self, input_file:str, output_file:str):
 
         # Intialize attributes
 
-        self.list = self.convert_to_list(input_file)
-
-        self.manipulated_list = None
+        self.list, self.magic_number, self.width, self.height, self.max_val = self.convert_to_list(input_file)
 
         self.output_file = output_file
-
-        self.magic_number = self.list[0][0][0]
-
-        self.columns = self.list[1][0][1]
-
-        self.rows = self.list[1][0][0]
-
-        self.max_colour_val = self.list[2][0][0]
-
-    def set_manipulated_list(self, list):
-
-        self.manipulated_list = list
-
 
     def convert_to_list(self, input_file:str) -> list:
 
@@ -44,30 +30,35 @@ class PPM:
 
         with open(input_file, 'r') as file:
 
-            lines = file.read().splitlines()
+            lines = file.read().split()
 
         # split each pixel into a list
 
+        magic_number = lines[0]
+
+        width = int(lines[1])
+
+        height = int(lines[2])
+
+        max_val = int(lines[3])
+
         chunk_size = 3
 
-        index = 0
+        pixels = []
+        
+        pixel_values = lines[4:]
 
-        for line in lines:
+        for num in range(0, len(pixel_values), chunk_size):
 
-            line = line.split()
+            pixels.append(pixel_values[num:num + chunk_size])
 
-            new_list = []
+        image = []
 
-            for num in range(0, len(line), chunk_size):
+        for pixel in range(0, len(pixels), width):
 
-                new_list.append(line[num:num + chunk_size])
+            image.append(pixels[pixel:pixel + width])
 
-            lines[index] = new_list
-
-            index += 1
-
-
-        return lines
+        return image, magic_number, width, height, max_val
     
     def convert_to_file(self):
 
@@ -90,21 +81,21 @@ class PPM:
 
             file.write("\n")
 
-            file.write(f"{self.rows} {self.columns}")
+            file.write(f"{self.width} {self.height}")
 
             file.write("\n")
 
-            file.write(self.max_colour_val)
+            file.write(str(self.max_val))
 
             file.write("\n")
 
             # Writes each pixel in each line
 
-            for line in self.manipulated_list:
+            for line in self.list:
 
                 for pixel in line:
 
-                    file.write(f"{pixel[0]} {pixel[1]} {pixel[2]}")
+                    file.write(f"{int(pixel[0])} {int(pixel[1])} {int(pixel[2])}")
 
                     file.write("  ")
 
@@ -124,7 +115,7 @@ class PPM:
         
         # Makes a copy of the input list
 
-        temp_list = self.list[3:].copy()
+        temp_list = self.list[3:]
         
         for line in temp_list:
 
@@ -132,11 +123,9 @@ class PPM:
 
                 # Flips each red value in every pixel
 
-                pixel[0] = str(int(self.max_colour_val) - int(pixel[0]))
+                pixel[0] = str(int(self.max_val) - int(pixel[0]))
 
-        # Sets the manipulated list as the copied (and now manipulated) list
-
-        self.set_manipulated_list(temp_list)
+        self.list = temp_list
 
         # Converts the list into a file
 
@@ -153,7 +142,7 @@ class PPM:
         """
         # Makes a copy of the input list
 
-        temp_list = self.list[3:].copy()
+        temp_list = self.list[3:]
 
         # Reserves each line in the list
 
@@ -161,9 +150,7 @@ class PPM:
 
             line.reverse()
 
-        # Sets the manipulated list as the copied (and now manipulated) list
-
-        self.set_manipulated_list(temp_list)
+        self.list = temp_list
 
         # Converts the list into a file
 
@@ -181,7 +168,7 @@ class PPM:
 
         # Makes a copy of the input list
 
-        temp_list = self.list[3:].copy()
+        temp_list = self.list[3:]
 
         # Calculates the average of the colour values of each pixel, setting that as the colour value for red, green, and blue.
 
@@ -197,9 +184,7 @@ class PPM:
 
                 pixel[2] = total
 
-        # Sets the manipulated list as the copied (and now manipulated) list
-
-        self.set_manipulated_list(temp_list)
+        self.list = temp_list
 
         # Converts the list into a file
 
@@ -218,7 +203,7 @@ class PPM:
 
         # Makes a copy of the input list
 
-        temp_list = self.list[3:].copy()
+        temp_list = self.list[3:]
 
         # Sets each red value in every pixel to zero.
 
@@ -228,9 +213,7 @@ class PPM:
 
                 pixel[0] = 0
 
-        # Sets the manipulated list as the copied (and now manipulated) list
-
-        self.set_manipulated_list(temp_list)
+        self.list = temp_list
 
         # Converts the list into a file
 
